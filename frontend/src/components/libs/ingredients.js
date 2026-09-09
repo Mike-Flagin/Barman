@@ -5,7 +5,7 @@
  *
  * @return array of ingredients ids
  */
-function getAvailableIngredients(config) {
+export function getAvailableIngredients(config) {
     return config.pumps.map((item) => item.ingredientId).filter((item) => item > 0)
 }
 
@@ -21,7 +21,7 @@ function getAvailableIngredients(config) {
  *
  * @return JSON-array of ingredients
  */
-function deleteIngredient(recipes, config, ingredients, id) {
+export function deleteIngredient(recipes, config, ingredients, id) {
     if (recipes.map((item) => item.ingredients).flat().map((item) => item.ingredientId).includes(id)) {
         throw new Error('Ingredient is used in recipes');
     }
@@ -47,7 +47,7 @@ function deleteIngredient(recipes, config, ingredients, id) {
  *
  * @return JSON-array of ingredients
  */
-function addIngredient(ingredients, ingredient) {
+export function addIngredient(ingredients, ingredient) {
     if (ingredients.map((item) => item.name).includes(ingredient.name)) {
         throw new Error("Name is already in use");
     }
@@ -71,7 +71,7 @@ function addIngredient(ingredients, ingredient) {
  *
  * @return JSON-array of ingredients
  */
-function modifyIngredient(ingredients, ingredient) {
+export function modifyIngredient(ingredients, ingredient) {
     for (let i = 0; i < ingredients.length; i++) {
         if (ingredients[i].id === ingredient.id) {
             ingredients[i].name = ingredient.name;

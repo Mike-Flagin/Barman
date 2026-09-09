@@ -3,11 +3,10 @@ import useSWRMutation from 'swr/mutation'
 
 
 /**
- * Fetches GET-request
+ * Executes a GET request.
  *
- * @param url url
- *
- * @return json response
+ * @param {string} url - Endpoint path relative to the base URL
+ * @returns {Promise<any>} Parsed JSON response
  */
 export const getRequest = async (url) => {
     const res = await fetch(url)
@@ -20,12 +19,11 @@ export const getRequest = async (url) => {
 }
 
 /**
- * Fetches PUT-request
+ * Executes a PUT request with JSON payload.
  *
- * @param url url
- * @param arg data to send
- *
- * @return http response code
+ * @param {string} url - Endpoint path relative to the base URL
+ * @param {{ arg: any }} options - Mutation options containing data to send
+ * @returns {Promise<number>} HTTP status code
  */
 export async function putRequest(url, { arg }) {
     const res = await fetch(url, {
@@ -46,12 +44,11 @@ export async function putRequest(url, { arg }) {
 }
 
 /**
- * Fetches POST-request
+ * Executes a POST request with JSON payload.
  *
- * @param url url
- * @param arg data to send
- *
- * @return http response code
+ * @param {string} url - Endpoint path relative to the base URL
+ * @param {{ arg: any }} options - Mutation options containing data to send
+ * @returns {Promise<number>} HTTP status code
  */
 export async function postRequest(url, { arg }) {
     const res = await fetch(url, {
@@ -72,18 +69,17 @@ export async function postRequest(url, { arg }) {
 }
 
 /**
- * Fetches POST-request with 'application/octet-stream' header
+ * Executes a POST request with 'application/octet-stream' header for binary data.
  *
- * @param url url
- * @param arg data to send
- *
- * @return http response code
+ * @param {string} url - Endpoint path relative to the base URL
+ * @param {{ arg: Blob|ArrayBuffer|File }} options - Mutation options containing binary body
+ * @returns {Promise<number>} HTTP status code
  */
 export async function postFileRequest(url, { arg }) {
     const res = await fetch(url, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/octet-stream ',
+            'Content-Type': 'application/octet-stream',
         },
         body: arg
     })
@@ -99,13 +95,13 @@ export async function postFileRequest(url, { arg }) {
 
 
 /**
- * Hook for getting ingredients list
+ * Hook for getting ingredients list.
  *
- * Usage:
- * const { ingredients, isLoading, isError } = useIngredients()
+ * @example
+ * const { ingredients, isLoading, error } = useIngredients()
  *
  * if (isLoading) return <div>Loading...</div>
- * if (isError) return <div>Error loading ingredients ({isError.status})</div>
+ * if (error) return <div>Error loading ingredients ({error.status})</div>
  *
  * return (
  *   <ul>
@@ -115,28 +111,28 @@ export async function postFileRequest(url, { arg }) {
  *   </ul>
  * )
  *
- * @returns {{ ingredients: Array|undefined, isLoading: boolean, isError: Error|undefined }} Object containing fetched ingredients, loading state, and error object.
+ * @returns {{ ingredients: Array|undefined, isLoading: boolean, error: Error|undefined }} Object containing fetched ingredients, loading state, and error object.
  */
 export function useIngredients() {
-    const { data, error, isLoading  } = useSWR("/ingredients", getRequest)
+    const { data, error, isLoading } = useSWR('/ingredients', getRequest)
 
     return {
         ingredients: data,
         isLoading,
-        isError: error,
+        error,
     }
 }
 
 /**
- * Hook for updating the ingredients list
+ * Hook for updating the ingredients list.
  *
- * Usage:
- * const { trigger, isMutating, error } = useUpdateIngredients()
+ * @example
+ * const { trigger, result, isMutating, error } = useUpdateIngredients()
  *
  * const handleUpdate = async () => {
  *   try {
  *     const status = await trigger(updatedIngredients)
- *     console.log('Update success:', status)
+ *     console.log('Update success status:', status)
  *   } catch (err) {
  *     console.error('Update failed with status:', err.status)
  *   }
@@ -148,29 +144,30 @@ export function useIngredients() {
  *   </button>
  * )
  *
- * @returns {{ trigger: Function, error: Error|undefined, isMutating: boolean }} Object containing trigger function, error object, and mutation state.
+ * @returns {{ trigger: Function, result: number|undefined, isMutating: boolean, error: Error|undefined }} Object containing trigger function, HTTP status result, mutation state, and error object.
  */
 export function useUpdateIngredients() {
-    const { trigger, error, isMutating } = useSWRMutation(
+    const { trigger, data, error, isMutating } = useSWRMutation(
         '/ingredients',
         putRequest
     )
 
     return {
         trigger,
-        error,
+        result: data,
         isMutating,
+        error,
     }
 }
 
 /**
- * Hook for getting recipes list
+ * Hook for getting recipes list.
  *
- * Usage:
- * const { recipes, isLoading, isError } = useRecipes()
+ * @example
+ * const { recipes, isLoading, error } = useRecipes()
  *
  * if (isLoading) return <div>Loading recipes...</div>
- * if (isError) return <div>Error loading recipes ({isError.status})</div>
+ * if (error) return <div>Error loading recipes ({error.status})</div>
  *
  * return (
  *   <ul>
@@ -180,28 +177,28 @@ export function useUpdateIngredients() {
  *   </ul>
  * )
  *
- * @returns {{ recipes: Array|undefined, isLoading: boolean, isError: Error|undefined }} Object containing fetched recipes, loading state, and error object.
+ * @returns {{ recipes: Array|undefined, isLoading: boolean, error: Error|undefined }} Object containing fetched recipes, loading state, and error object.
  */
 export function useRecipes() {
-    const { data, error, isLoading  } = useSWR("/recipes", getRequest)
+    const { data, error, isLoading } = useSWR('/recipes', getRequest)
 
     return {
         recipes: data,
         isLoading,
-        isError: error,
+        error,
     }
 }
 
 /**
- * Hook for updating the recipes list
+ * Hook for updating the recipes list.
  *
- * Usage:
- * const { trigger, isMutating, error } = useUpdateRecipes()
+ * @example
+ * const { trigger, result, isMutating, error } = useUpdateRecipes()
  *
  * const handleSave = async () => {
  *   try {
  *     const status = await trigger(newRecipes)
- *     console.log('Recipes updated successfully')
+ *     console.log('Recipes updated successfully with status:', status)
  *   } catch (err) {
  *     console.error('Failed to update recipes:', err.status)
  *   }
@@ -213,53 +210,54 @@ export function useRecipes() {
  *   </button>
  * )
  *
- * @returns {{ trigger: Function, error: Error|undefined, isMutating: boolean }} Object containing trigger function, error object, and mutation state.
+ * @returns {{ trigger: Function, result: number|undefined, isMutating: boolean, error: Error|undefined }} Object containing trigger function, HTTP status result, mutation state, and error object.
  */
 export function useUpdateRecipes() {
-    const { trigger, error, isMutating } = useSWRMutation(
+    const { trigger, data, error, isMutating } = useSWRMutation(
         '/recipes',
         putRequest
     )
 
     return {
         trigger,
-        error,
+        result: data,
         isMutating,
+        error,
     }
 }
 
 /**
- * Hook for getting currently selected recipe
+ * Hook for getting currently selected recipe.
  *
- * Usage:
- * const { recipe, isLoading, isError } = useGetSelectedRecipe()
+ * @example
+ * const { recipe, isLoading, error } = useGetSelectedRecipe()
  *
  * if (isLoading) return <div>Loading selected recipe...</div>
- * if (isError) return <div>Error fetching selection ({isError.status})</div>
+ * if (error) return <div>Error fetching selection ({error.status})</div>
  *
  * return <div>Selected: {recipe?.name}</div>
  *
- * @returns {{ recipe: Object|undefined, isLoading: boolean, isError: Error|undefined }} Object containing selected recipe data, loading state, and error object.
+ * @returns {{ recipe: Object|undefined, isLoading: boolean, error: Error|undefined }} Object containing selected recipe data, loading state, and error object.
  */
 export function useGetSelectedRecipe() {
-    const { data, error, isLoading  } = useSWR("/select-recipe", getRequest)
+    const { data, error, isLoading } = useSWR('/select-recipe', getRequest)
 
     return {
         recipe: data,
         isLoading,
-        isError: error,
+        error,
     }
 }
 
 /**
- * Hook for selecting a recipe
+ * Hook for selecting a recipe.
  *
- * Usage:
- * const { selectRecipe, isMutating, isError } = useSelectRecipe()
+ * @example
+ * const { selectRecipe, result, isMutating, error } = useSelectRecipe()
  *
  * const handleSelect = async (recipeId) => {
  *   try {
- *     await selectRecipe({ "id": 1, "portion": 1.5 })
+ *     await selectRecipe({ id: recipeId, portion: 1.5 })
  *   } catch (err) {
  *     console.error('Selection failed:', err.status)
  *   }
@@ -267,54 +265,54 @@ export function useGetSelectedRecipe() {
  *
  * return (
  *   <button onClick={() => handleSelect(1)} disabled={isMutating}>
- *     Select Recipe 1
+ *     {isMutating ? 'Selecting...' : 'Select Recipe 1'}
  *   </button>
  * )
  *
- * @returns {{ selectRecipe: Function, result: number|Object|undefined, isMutating: boolean, isError: Error|undefined }} Object containing select handler, result, mutation state, and error object.
+ * @returns {{ selectRecipe: Function, result: number|undefined, isMutating: boolean, error: Error|undefined }} Object containing select trigger function, HTTP status result, mutation state, and error object.
  */
 export function useSelectRecipe() {
-    const { trigger, httpCode, error, isMutating } = useSWRMutation(
+    const { trigger, data, error, isMutating } = useSWRMutation(
         '/select-recipe',
         postRequest
     )
 
     return {
         selectRecipe: trigger,
-        result: httpCode,
+        result: data,
         isMutating,
-        isError: error,
+        error,
     }
 }
 
 /**
- * Hook for getting system configuration
+ * Hook for getting system configuration.
  *
- * Usage:
- * const { recipe: config, isLoading, isError } = useGetConfig()
+ * @example
+ * const { config, isLoading, error } = useGetConfig()
  *
  * if (isLoading) return <div>Loading settings...</div>
- * if (isError) return <div>Error loading config ({isError.status})</div>
+ * if (error) return <div>Error loading config ({error.status})</div>
  *
  * return <div>Theme: {config?.theme}</div>
  *
- * @returns {{ recipe: Object|undefined, isLoading: boolean, isError: Error|undefined }} Object containing configuration data, loading state, and error object.
+ * @returns {{ config: Object|undefined, isLoading: boolean, error: Error|undefined }} Object containing configuration data, loading state, and error object.
  */
 export function useGetConfig() {
-    const { data, error, isLoading  } = useSWR("/config", getRequest)
+    const { data, error, isLoading } = useSWR('/config', getRequest)
 
     return {
-        recipe: data,
+        config: data,
         isLoading,
-        isError: error,
+        error,
     }
 }
 
 /**
- * Hook for updating system configuration
+ * Hook for updating system configuration.
  *
- * Usage:
- * const { updateConfig, isMutating, isError } = useUpdateConfig()
+ * @example
+ * const { updateConfig, result, isMutating, error } = useUpdateConfig()
  *
  * const handleSaveConfig = async (newSettings) => {
  *   try {
@@ -325,32 +323,32 @@ export function useGetConfig() {
  * }
  *
  * return (
- *   <button onClick={() => handleSaveConfig(config_object)} disabled={isMutating}>
- *     Save Config
+ *   <button onClick={() => handleSaveConfig({ theme: 'dark' })} disabled={isMutating}>
+ *     {isMutating ? 'Saving...' : 'Save Config'}
  *   </button>
  * )
  *
- * @returns {{ updateConfig: Function, result: number|Object|undefined, isMutating: boolean, isError: Error|undefined }} Object containing config update trigger, result, mutation state, and error object.
+ * @returns {{ updateConfig: Function, result: number|undefined, isMutating: boolean, error: Error|undefined }} Object containing config update trigger function, HTTP status result, mutation state, and error object.
  */
 export function useUpdateConfig() {
-    const {trigger, httpCode, error, isMutating} = useSWRMutation(
+    const { trigger, data, error, isMutating } = useSWRMutation(
         '/config',
-        postRequest
+        putRequest
     )
 
     return {
         updateConfig: trigger,
-        result: httpCode,
+        result: data,
         isMutating,
-        isError: error,
+        error,
     }
 }
 
 /**
- * Hook for setting pump state
+ * Hook for setting pump state.
  *
- * Usage:
- * const { setPumpState, isMutating, isError } = useSetPumpState()
+ * @example
+ * const { setPumpState, result, isMutating, error } = useSetPumpState()
  *
  * const handleTogglePump = async (pumpState) => {
  *   try {
@@ -361,15 +359,15 @@ export function useUpdateConfig() {
  * }
  *
  * return (
- *   <button onClick={() => handleTogglePump({"pump": 0, "state": -1})} disabled={isMutating}>
- *     Turn On Pump 1
+ *   <button onClick={() => handleTogglePump({ pump: 0, state: 1 })} disabled={isMutating}>
+ *     {isMutating ? 'Updating...' : 'Turn On Pump 0'}
  *   </button>
  * )
  *
- * @returns {{ setPumpState: Function, result: number|Object|undefined, isMutating: boolean, isError: Error|undefined }} Object containing pump state trigger, result, mutation state, and error object.
+ * @returns {{ setPumpState: Function, result: number|undefined, isMutating: boolean, error: Error|undefined }} Object containing pump state trigger function, HTTP status result, mutation state, and error object.
  */
 export function useSetPumpState() {
-    const {trigger, data, error, isMutating} = useSWRMutation(
+    const { trigger, data, error, isMutating } = useSWRMutation(
         '/set-pump-state',
         postRequest
     )
@@ -378,20 +376,20 @@ export function useSetPumpState() {
         setPumpState: trigger,
         result: data,
         isMutating,
-        isError: error,
+        error,
     }
 }
 
 /**
- * Hook for triggering a system restart
+ * Hook for triggering a system restart.
  *
- * Usage:
- * const { restart, result, isError} = useRestart()
+ * @example
+ * const { restart, result, isMutating, error } = useRestart()
  *
  * const handleRestart = async () => {
  *   try {
- *     await triggerRestart()
- *     console.log('Restart initiated')
+ *     await restart()
+ *     console.log('Restart initiated successfully')
  *   } catch (err) {
  *     console.error('Restart failed:', err.status)
  *   }
@@ -399,14 +397,14 @@ export function useSetPumpState() {
  *
  * return (
  *   <button onClick={handleRestart} disabled={isMutating}>
- *     Restart Device
+ *     {isMutating ? 'Restarting...' : 'Restart Device'}
  *   </button>
  * )
  *
- * @returns {{ restart: Function, result: number|Object|undefined, isMutating: boolean, isError: Error|undefined }} Object containing restart trigger, result, mutation state, and error object.
+ * @returns {{ restart: Function, result: number|undefined, isMutating: boolean, error: Error|undefined }} Object containing restart trigger function, HTTP status result, mutation state, and error object.
  */
-export function useRestart () {
-    const {trigger, data, isMutating, error} = useSWRMutation(
+export function useRestart() {
+    const { trigger, data, error, isMutating } = useSWRMutation(
         '/restart',
         postRequest
     )
@@ -414,23 +412,22 @@ export function useRestart () {
     return {
         restart: trigger,
         result: data,
-        isMutating: isMutating,
-        isError: error,
+        isMutating,
+        error,
     }
 }
 
 /**
- * Hook for updating device firmware
+ * Hook for updating device firmware using binary stream data.
  *
- * Usage:
- * const { updateFirmware, isMutating, isError } = useFirmwareUpdate()
+ * @example
+ * const { updateFirmware, result, isMutating, error } = useFirmwareUpdate()
  *
  * const handleUpload = async (file) => {
- *   const formData = new FormData()
- *   formData.append('file', file)
- *
+ *   if (!file) return
  *   try {
- *     await updateFirmware(formData)
+ *     // Pass the File or Blob object directly (sent as application/octet-stream)
+ *     await updateFirmware(file)
  *     console.log('Firmware update started')
  *   } catch (err) {
  *     console.error('Firmware update failed:', err.status)
@@ -438,13 +435,17 @@ export function useRestart () {
  * }
  *
  * return (
- *   <input type="file" onChange={(e) => handleUpload(e.target.files[0])} disabled={isMutating} />
+ *   <input
+ *     type="file"
+ *     onChange={(e) => handleUpload(e.target.files[0])}
+ *     disabled={isMutating}
+ *   />
  * )
  *
- * @returns {{ updateFirmware: Function, result: number|Object|undefined, isMutating: boolean, isError: Error|undefined }} Object containing firmware update trigger, result, mutation state, and error object.
+ * @returns {{ updateFirmware: Function, result: number|undefined, isMutating: boolean, error: Error|undefined }} Object containing firmware update trigger function, HTTP status result, mutation state, and error object.
  */
 export function useFirmwareUpdate() {
-    const {trigger, data, error, isMutating} = useSWRMutation(
+    const { trigger, data, error, isMutating } = useSWRMutation(
         '/firmware-update',
         postFileRequest
     )
@@ -453,6 +454,6 @@ export function useFirmwareUpdate() {
         updateFirmware: trigger,
         result: data,
         isMutating,
-        isError: error,
+        error,
     }
 }

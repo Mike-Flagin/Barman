@@ -1,4 +1,5 @@
 import './ingredients.js'
+import {getAvailableIngredients} from "./ingredients.js";
 
 /**
  * Checks which recipes from passed parameters are available in passed configuration state
@@ -8,7 +9,7 @@ import './ingredients.js'
  *
  * @return JSON-array of recipes with 'available' key attached to every recipe, true - available, false - otherwise
  */
-function checkRecipesAvailability(recipes, config) {
+export function checkRecipesAvailability(recipes, config) {
     let availableIngredients = getAvailableIngredients(config)
     recipes.map((item) => {
         for (let i = 0; i < item.ingredients.length; i++) {
@@ -31,7 +32,7 @@ function checkRecipesAvailability(recipes, config) {
  *
  * @return JSON-array of recipes
  */
-function deleteRecipe(recipes, id) {
+export function deleteRecipe(recipes, id) {
     recipes.splice(id - 1, 1)
     for(let i = id - 1; i < recipes.length;){
         recipes[i].id = ++i
@@ -49,7 +50,7 @@ function deleteRecipe(recipes, id) {
  *
  * @return JSON-array of recipes
  */
-function addRecipe(recipes, recipe) {
+export function addRecipe(recipes, recipe) {
     if (recipes.map((item) => item.name).includes(recipe.name)) {
         throw new Error("Name is already in use");
     }
@@ -66,7 +67,7 @@ function addRecipe(recipes, recipe) {
  *
  * @return JSON-array of recipes
  */
-function modifyRecipe(recipes, recipe) {
+export function modifyRecipe(recipes, recipe) {
     recipes.splice(recipe.id - 1, 1, recipe);
     return recipes;
 }
