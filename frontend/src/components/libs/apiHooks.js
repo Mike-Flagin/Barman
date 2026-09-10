@@ -345,115 +345,250 @@ export function useUpdateConfig() {
 }
 
 /**
- * Hook for setting pump state.
+ * Send pump state update
+ * @param {Object} data - e.g., { pump: 0, state: 1 }
+ * @returns {Promise<number>} HTTP response code (200, 500, etc.)
  *
  * @example
- * const { setPumpState, result, isMutating, error } = useSetPumpState()
+ * const handleTogglePump = async () => {
+ *     const statusCode = await setPumpState({ pump: 0, state: 1 })
  *
- * const handleTogglePump = async (pumpState) => {
- *   try {
- *     await setPumpState(pumpState)
- *   } catch (err) {
- *     console.error('Failed to set pump state:', err.status)
- *   }
+ *     if (statusCode === 200) {
+ *         console.log('Pump updated successfully')
+ *     } else {
+ *         console.error('Request failed with status:', statusCode)
+ *     }
  * }
- *
- * return (
- *   <button onClick={() => handleTogglePump({ pump: 0, state: 1 })} disabled={isMutating}>
- *     {isMutating ? 'Updating...' : 'Turn On Pump 0'}
- *   </button>
- * )
- *
- * @returns {{ setPumpState: Function, result: number|undefined, isMutating: boolean, error: Error|undefined }} Object containing pump state trigger function, HTTP status result, mutation state, and error object.
  */
-export function useSetPumpState() {
-    const { trigger, data, error, isMutating } = useSWRMutation(
-        '/set-pump-state',
-        postRequest
-    )
-
-    return {
-        setPumpState: trigger,
-        result: data,
-        isMutating,
-        error,
-    }
+export async function setPumpState(data) {
+    return postRequest('/set-pump-state', data)
 }
 
 /**
- * Hook for triggering a system restart.
+ * Triggers a system restart.
+ *
+ * @returns {Promise<number>} HTTP response code (e.g., 200, 500)
  *
  * @example
- * const { restart, result, isMutating, error } = useRestart()
- *
  * const handleRestart = async () => {
- *   try {
- *     await restart()
- *     console.log('Restart initiated successfully')
- *   } catch (err) {
- *     console.error('Restart failed:', err.status)
- *   }
+ *     const status = await restart()
+ *     if (status === 200) {
+ *         console.log('Restart initiated successfully')
+ *     } else {
+ *         console.error('Restart failed with status:', status)
+ *     }
  * }
- *
- * return (
- *   <button onClick={handleRestart} disabled={isMutating}>
- *     {isMutating ? 'Restarting...' : 'Restart Device'}
- *   </button>
- * )
- *
- * @returns {{ restart: Function, result: number|undefined, isMutating: boolean, error: Error|undefined }} Object containing restart trigger function, HTTP status result, mutation state, and error object.
  */
-export function useRestart() {
-    const { trigger, data, error, isMutating } = useSWRMutation(
-        '/restart',
-        postRequest
-    )
-
-    return {
-        restart: trigger,
-        result: data,
-        isMutating,
-        error,
-    }
+export async function restart() {
+    return postRequest("/restart", undefined)
 }
 
 /**
- * Hook for updating device firmware using binary stream data.
+ * Sends a binary firmware update stream to the device.
+ *
+ * @param {File|Blob} file - Binary file or blob object to send
+ * @returns {Promise<number>} HTTP response code (e.g., 200, 500)
  *
  * @example
- * const { updateFirmware, result, isMutating, error } = useFirmwareUpdate()
+ * const handleUpload = async (event) => {
+ *     const file = event.target.files[0]
+ *     if (!file) return
  *
- * const handleUpload = async (file) => {
- *   if (!file) return
- *   try {
- *     // Pass the File or Blob object directly (sent as application/octet-stream)
- *     await updateFirmware(file)
- *     console.log('Firmware update started')
- *   } catch (err) {
- *     console.error('Firmware update failed:', err.status)
- *   }
+ *     const status = await updateFirmware(file)
+ *     if (status === 200) {
+ *         console.log('Firmware update started')
+ *     } else {
+ *         console.error('Firmware update failed with status:', status)
+ *     }
  * }
- *
- * return (
- *   <input
- *     type="file"
- *     onChange={(e) => handleUpload(e.target.files[0])}
- *     disabled={isMutating}
- *   />
- * )
- *
- * @returns {{ updateFirmware: Function, result: number|undefined, isMutating: boolean, error: Error|undefined }} Object containing firmware update trigger function, HTTP status result, mutation state, and error object.
  */
-export function useFirmwareUpdate() {
-    const { trigger, data, error, isMutating } = useSWRMutation(
-        '/firmware-update',
-        postFileRequest
-    )
+export async function updateFirmware(file) {
+    return postFileRequest('/firmware-update', file)
+}
 
-    return {
-        updateFirmware: trigger,
-        result: data,
-        isMutating,
-        error,
+/**
+ * Get redirect to main if no Wi-Fi connection is needed
+ *
+ * @returns {Promise<string>} Redirect address
+ */
+export async function withoutConnectionRedirect() {
+    const res = await fetch("/wifi/without-connection")
+
+    if (!res.ok && res.status !== 302) {
+        const error = new Error('Failed to check redirect')
+        error.status = res.status
+        throw error
     }
+
+    return res.headers.get('Location')
+}
+
+/**
+ * Fetches the list of available Wi-Fi networks.
+ *
+ * @returns {Promise<Array>} List of available Wi-Fi networks
+ */
+export async function getAvailableNetworks() {
+    return getRequest('/wifi/scan')
+}
+
+/**
+ * Connect to any saved and available Wi-Fi network.
+ *
+ * @returns {Promise<{ status: string }>} Response
+ */
+export async function connectToSavedWifi() {
+    const res = await fetch('/wifi/connect', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+
+    const data = await res.json()
+
+    if (!res.ok || data.status !== 'ok') {
+        const error = new Error(data.error || 'Failed to connect to saved Wi-Fi')
+        error.status = res.status
+        throw error
+    }
+
+    return data
+}
+
+/**
+ * Connect to Wi-Fi network by SSID.
+ *
+ * @param {string} ssid - SSID
+ * @returns {Promise<{ status: string }>} Response
+ */
+export async function connectToWifi(ssid) {
+    const res = await fetch('/wifi/connect', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ssid: ssid }),
+    })
+
+    const data = await res.json()
+
+    if (!res.ok || data.status !== 'ok') {
+        const error = new Error(data.error || 'Failed to connect to Wi-Fi')
+        error.status = res.status
+        throw error
+    }
+
+    return data
+}
+
+/**
+ * Get Wi-Fi status.
+ *
+ * @returns {Promise<Object>} Current connection status
+ */
+export async function getWifiStatus() {
+    const res = await fetch('/wifi/status')
+    const data = await res.json()
+
+    if (!res.ok || data.error) {
+        const error = new Error(data.error || 'Failed to get Wi-Fi status')
+        error.status = res.status
+        throw error
+    }
+
+    return data
+}
+
+/**
+ * Get saved Wi-Fi networks.
+ *
+ * @returns {Promise<Array|Object>} List of saved networks
+ */
+export async function getSavedNetworks() {
+    const res = await fetch('/wifi/networks')
+    const data = await res.json()
+
+    if (!res.ok || data.error) {
+        const error = new Error(data.error || 'Failed to fetch saved networks')
+        error.status = res.status
+        throw error
+    }
+
+    return data
+}
+
+/**
+ * Save new Wi-Fi network.
+ *
+ * @param {Object} networkData - Network data, e.g. {"ssid": "MyWiFi", "password": "secret123", "priority": 10}
+ * @returns {Promise<{ status: string }>} Response
+ */
+export async function addSavedNetwork(networkData) {
+    const res = await fetch('/networks', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(networkData),
+    })
+
+    const data = await res.json()
+
+    if (!res.ok || data.status !== 'ok') {
+        const error = new Error(data.error || 'Failed to add network')
+        error.status = res.status
+        throw error
+    }
+
+    return data
+}
+
+/**
+ * Update saved Wi-Fi network.
+ *
+ * @param {string} ssid - SSID
+ * @param {Object} networkData - New network data
+ * @returns {Promise<{ status: string }>} Response
+ */
+export async function updateSavedNetwork(ssid, networkData) {
+    const res = await fetch(`/networks/${encodeURIComponent(ssid)}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(networkData),
+    })
+
+    const data = await res.json()
+
+    if (!res.ok || data.status !== 'ok') {
+        const error = new Error(data.error || 'Failed to update network')
+        error.status = res.status
+        throw error
+    }
+
+    return data
+}
+
+/**
+ * Delete saved Wi-Fi network.
+ *
+ * @param {string} ssid - SSID
+ * @returns {Promise<{ status: string }>} Response
+ */
+export async function deleteSavedNetwork(ssid) {
+    const res = await fetch(`/networks/${encodeURIComponent(ssid)}`, {
+        method: 'DELETE',
+    })
+
+    const data = await res.json()
+
+    if (!res.ok || data.status !== 'ok') {
+        const error = new Error(data.error || 'Failed to delete network')
+        error.status = res.status
+        throw error
+    }
+
+    return data
 }
