@@ -1,35 +1,42 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import style_arrow from "../Icons/style_icons.module.css";
 import Arrow from "../../assets/vector_arrow.svg";
-import style_accordion from './style_accordion.module.css'
+import styles from './Accordion.module.css';
 
+/**
+ * @param {Object} props
+ * @param {React.ReactNode} props.title - Accordion title
+ * @param {boolean} [props.initialOpen=false] - Initial state (opened, closed)
+ * @param {React.ReactNode} [props.children] - Accordion body
+ */
 
-export default function Accordion({title, condition, slot_component}) {
-    const [open, setOpen] = useState(condition);
+export default function Accordion({title, initialOpen = false, children}) {
+    const [isOpen, setOpen] = useState(initialOpen);
 
-    const clickHandler = () => {
-        setOpen (!open);
-    }
+    const toggleAccordion = () => {
+        setOpen((prev) => !prev);
+    };
 
     return (
-        <div className={style_accordion.accordionItem} >
-            <div className={style_accordion.accordionHeader} onClick={clickHandler}>
-                <div>
-                    {title}
-                </div>
-                <div>
-                    <img className={style_arrow.vectorArrow} src={Arrow} alt="arrow">
-                    </img>
+        <div className={styles.accordion}>
+            <button
+                type="button"
+                className={styles.header}
+                onClick={toggleAccordion}>
+                <span className={styles.title}>{title}</span>
+                <img
+                    src={Arrow}
+                    alt=""
+                    aria-hidden="true"
+                    className={`${styles.icon} ${isOpen ? styles.iconOpen : ''} ${style_arrow.vectorArrow || ''}`}
+                />
+            </button>
 
-                </div>
-            </div>
-            <div className={`${style_accordion.accordionCollapse} ${open ? style_accordion.open : ''}`}>
-                <div className={style_accordion.accordionBody}>
-                    {slot_component}
+            <div className={`${styles.contentWrapper} ${isOpen ? styles.open : ''}`}>
+                <div className={styles.contentInner}>
+                    <div className={styles.body}>{children}</div>
                 </div>
             </div>
         </div>
-    )
-
-
+    );
 }

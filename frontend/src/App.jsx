@@ -42,14 +42,15 @@ function App() {
             <section id="center">
                 <Accordion
                     title="Game"
-                    condition={false}
-                    slot_component=<Spinner
-                    val={portion}
-                    min={1}
-                    max={10}
-                    step={0.5}
-                    onChange={val => setPortion(val)}
-                />/>
+                    initialOpen={false}
+                >
+                    <Spinner
+                        val={portion}
+                        min={1}
+                        max={10}
+                        step={0.5}
+                        onChange={val => setPortion(val)}/>
+                </Accordion>
             </section>
 
         </>
