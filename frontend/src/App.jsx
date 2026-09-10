@@ -31,7 +31,7 @@ function App() {
         <>
             <section id="center">
                 <Spinner
-                    val={portion}
+                    defaultValue={portion}
                     min={1}
                     max={10}
                     step={0.5}
@@ -45,10 +45,10 @@ function App() {
                     initialOpen={false}
                 >
                     <Spinner
-                        val={portion}
+                        defaultValue={portion}
                         min={1}
                         max={10}
-                        step={0.5}
+                        step={1}
                         onChange={val => setPortion(val)}/>
                 </Accordion>
             </section>
