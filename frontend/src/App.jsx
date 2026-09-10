@@ -3,6 +3,7 @@ import {useState} from 'react';
 import './App.css'
 import Spinner from "./components/Spinner/Spinner.jsx";
 import Accordion from "./components/Accordion/Accordion.jsx";
+import RgbPickerWithInputs from "./components/ColorPicker/ColorPicker.jsx";
 
 function App() {
     const [portion, setPortion] = useState(5);
@@ -30,13 +31,8 @@ function App() {
     return (
         <>
             <section id="center">
-                <Spinner
-                    defaultValue={portion}
-                    min={1}
-                    max={10}
-                    step={0.5}
-                    onChange={val => setPortion(val)}
-                />
+                <RgbPickerWithInputs/>
+
             </section>
 
             <section id="center">
