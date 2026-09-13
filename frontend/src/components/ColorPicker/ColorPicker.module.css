@@ -1,0 +1,75 @@
+.wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Circular swatch button */
+.swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #ffffff; /* TODO:Switch to theme variable */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    padding: 0;
+    outline: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.swatch:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Popover aligned to the right, starting at the top edge of the circle */
+.popover {
+    position: absolute;
+    top: 0; /* Align top edge with circle button */
+    left: calc(100% + 12px); /* Position to the right */
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    background-color: #ffffff; /* TODO:Switch to theme variable */
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    width: 200px;
+}
+
+.inputsRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+}
+
+.inputGroup span {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666666; /* TODO:Switch to theme variable (R G B labels color) */
+}
+
+.inputGroup input {
+    width: 100%;
+    padding: 4px 2px;
+    border: 1px solid #e0e0e0; /* TODO:Switch to theme variable (R G B inputs color), maybe add background color */
+    border-radius: 6px;
+    text-align: center;
+    font-size: 14px;
+    -moz-appearance: textfield;
+}
+
+.inputGroup input::-webkit-outer-spin-button,
+.inputGroup input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

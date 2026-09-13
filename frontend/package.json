@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "react": "^19.2.7",
+    "react-colorful": "^5.8.1",
     "react-dom": "^19.2.7",
     "react-dropdown": "^2.0.0",
     "swr": "^2.5.1"
