@@ -3,13 +3,15 @@ import {useState} from 'react';
 import './App.css'
 import Spinner from "./components/Spinner/Spinner.jsx";
 import Accordion from "./components/Accordion/Accordion.jsx";
-import RgbPickerWithInputs from "./components/ColorPicker/ColorPicker.jsx";
+import ColorPicker from "./components/ColorPicker/ColorPicker.jsx";
 
 function App() {
     const [portion, setPortion] = useState(5);
 
-    const clickHandler = () => {
-        console.log(portion);
+    const clickHandler = (color) => {
+        console.log(color[0]);
+        console.log(color[1]);
+        console.log(color[2]);
     }
 
 
@@ -31,7 +33,7 @@ function App() {
     return (
         <>
             <section id="center">
-                <RgbPickerWithInputs/>
+                <ColorPicker defaultColor={[134, 150, 255]} onColorChange={clickHandler} />
 
             </section>
 

@@ -2,10 +2,31 @@ import React, { useState, useRef, useEffect } from 'react';
 import { RgbColorPicker } from 'react-colorful';
 import styles from './ColorPicker.module.css';
 
-export default function ColorPicker() {
+
+/**
+ * @param {Object} props
+ * @param {number[]} [props.defaultColor=[255,255,255]] - Initial color
+ * @param {function} [props.onColorChange] - Color changed callback, calls when the color picker window is closing
+ */
+export default function ColorPicker({defaultColor = [255, 255, 255], onColorChange}) {
     const [isOpen, setIsOpen] = useState(false);
-    const [color, setColor] = useState({ r: 30, g: 70, b: 160 });
+    const [color, setColor] = useState({ r: defaultColor[0], g: defaultColor[1], b: defaultColor[2] });
+
     const containerRef = useRef(null);
+    const colorRef = useRef(color);
+    const wasOpenRef = useRef(isOpen);
+
+    // Keep colorRef updated with the latest color state without causing re-renders
+    colorRef.current = color;
+
+    // Trigger onColorChange whenever the picker transitions from open -> closed
+    useEffect(() => {
+        if (wasOpenRef.current && !isOpen) {
+            const { r, g, b } = colorRef.current;
+            onColorChange?.([r, g, b]);
+        }
+        wasOpenRef.current = isOpen;
+    }, [isOpen, onColorChange]);
 
     // Close popover when clicking outside the component
     useEffect(() => {
@@ -20,6 +41,7 @@ export default function ColorPicker() {
         }
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+
         };
     }, [isOpen]);
 
@@ -32,16 +54,13 @@ export default function ColorPicker() {
 
     return (
         <div className={styles.wrapper} ref={containerRef}>
-            {/* Color Circle Swatch Button */}
             <button
                 type="button"
                 className={styles.swatch}
                 style={{ backgroundColor: rgbString }}
                 onClick={() => setIsOpen((prev) => !prev)}
-                aria-label="Choose color"
             />
 
-            {/* Popover */}
             {isOpen && (
                 <div className={styles.popover}>
                     <RgbColorPicker color={color} onChange={setColor} />
